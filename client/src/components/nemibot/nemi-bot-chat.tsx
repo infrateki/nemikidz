@@ -63,10 +63,12 @@ const NemiBotChat: React.FC<NemiBotChatProps> = ({ onClose }) => {
     setIsLoading(true);
     
     try {
+      console.log('Enviando mensaje a NEMI Bot:', userMessage.text);
       const response = await apiRequest<{ response: string }>('/api/nemibot', {
         method: 'POST',
         body: JSON.stringify({ message: userMessage.text }),
       });
+      console.log('Respuesta recibida de NEMI Bot:', response);
       
       setMessages((prev) => [
         ...prev,
