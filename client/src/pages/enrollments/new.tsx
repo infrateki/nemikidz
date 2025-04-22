@@ -75,7 +75,9 @@ export default function NewEnrollment() {
         title: "Enrollment created successfully",
         description: "The enrollment has been added to the system",
       });
+      // Invalidate both enrollments cache and dashboard data to update statistics
       queryClient.invalidateQueries({ queryKey: ['/api/enrollments'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
       navigate("/enrollments");
     },
     onError: (error) => {

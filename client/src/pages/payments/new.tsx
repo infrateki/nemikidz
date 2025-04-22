@@ -70,7 +70,9 @@ export default function NewPayment() {
         title: "Payment created successfully",
         description: "The payment has been added to the system",
       });
+      // Invalidate both payments cache and dashboard data to update statistics
       queryClient.invalidateQueries({ queryKey: ['/api/payments'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
       navigate("/payments");
     },
     onError: (error) => {
