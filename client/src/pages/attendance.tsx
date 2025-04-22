@@ -35,8 +35,35 @@ export default function AttendancePage() {
     queryKey: ['/api/children'],
   });
 
+  const formattedDate = selectedDate.toISOString().split('T')[0];
+  
   const { data: attendanceRecords, isLoading: attendanceLoading, error } = useQuery<Attendance[]>({
-    queryKey: ['/api/attendance', { date: selectedDate.toISOString() }],
+    queryKey: ['/api/attendance', { date: formattedDate }],
+    queryFn: async ({ queryKey }) => {
+      try {
+        const [_, params] = queryKey;
+        const searchParams = new URLSearchParams();
+        if (params && typeof params === 'object') {
+          Object.entries(params).forEach(([key, value]) => {
+            if (value) searchParams.append(key, value as string);
+          });
+        }
+        
+        const res = await fetch(`/api/attendance?${searchParams.toString()}`, {
+          credentials: 'include',
+        });
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || 'Failed to fetch attendance data');
+        }
+        
+        return res.json();
+      } catch (error) {
+        console.error('Error fetching attendance data:', error);
+        return [];
+      }
+    },
   });
 
   if (error) {
