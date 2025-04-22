@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { eq } from "drizzle-orm";
 import { zodMiddleware } from "./middleware";
+import { processNemiBotQuery } from "./nemibot";
 import {
   insertProgramSchema,
   insertParentSchema,
