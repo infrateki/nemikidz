@@ -123,11 +123,11 @@ export default function UpcomingProgramsTable({ programs }: UpcomingProgramsTabl
                                 {getStatusBadge(program.status)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <Link href={`/programs/${program.id}/edit`}>
-                                  <a className="text-primary-600 hover:text-primary-900 mr-3">Editar</a>
+                                <Link href={`/programs/${program.id}/edit`} className="text-primary-600 hover:text-primary-900 mr-3">
+                                  Editar
                                 </Link>
-                                <Link href={`/programs/${program.id}`}>
-                                  <a className="text-primary-600 hover:text-primary-900">Ver</a>
+                                <Link href={`/programs/${program.id}`} className="text-primary-600 hover:text-primary-900">
+                                  Ver
                                 </Link>
                               </td>
                             </tr>

@@ -58,6 +58,7 @@ function Router() {
 // Componente contenedor para el chatbot que solo muestra cuando el usuario está autenticado
 function ChatbotContainer() {
   const { user } = useAuth();
+  console.log("ChatbotContainer rendering, user:", user ? "logged in" : "not logged in");
   return user ? <NemiBotButton /> : null;
 }
 
