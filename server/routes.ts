@@ -615,6 +615,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // NEMI Bot API endpoint
+  app.post("/api/nemibot", requireAuth, async (req, res) => {
+    try {
+      const { message } = req.body;
+      
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ message: "El mensaje es requerido" });
+      }
+      
+      const response = await processNemiBotQuery(message);
+      res.json({ response });
+    } catch (error) {
+      console.error("Error en NEMI Bot:", error);
+      res.status(500).json({ message: "Error procesando consulta en NEMI Bot" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
