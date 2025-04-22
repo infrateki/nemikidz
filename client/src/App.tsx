@@ -22,6 +22,8 @@ import { Route } from "wouter";
 import NewProgram from "@/pages/programs/new";
 import NewChild from "@/pages/children/new";
 import NewParent from "@/pages/parents/new";
+import NewEnrollment from "@/pages/enrollments/new";
+import NewPayment from "@/pages/payments/new";
 
 function Router() {
   return (
@@ -34,7 +36,9 @@ function Router() {
       <ProtectedRoute path="/parents" component={Parents} />
       <ProtectedRoute path="/parents/new" component={NewParent} />
       <ProtectedRoute path="/enrollments" component={Enrollments} />
+      <ProtectedRoute path="/enrollments/new" component={NewEnrollment} />
       <ProtectedRoute path="/payments" component={Payments} />
+      <ProtectedRoute path="/payments/new" component={NewPayment} />
       <ProtectedRoute path="/attendance" component={Attendance} />
       <ProtectedRoute path="/communications" component={Communications} />
       <ProtectedRoute path="/inventory" component={Inventory} />
