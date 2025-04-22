@@ -557,23 +557,37 @@ export class DatabaseStorage implements IStorage {
   
   // Statistics & Dashboard Data
   async getActiveChildrenCount(): Promise<number> {
+    // Count distinct children who have enrollments with completed payments
     const result = await db
       .select({ count: sql<number>`count(distinct ${enrollments.childId})` })
       .from(enrollments)
       .innerJoin(programs, eq(enrollments.programId, programs.id))
+      .innerJoin(payments, eq(payments.enrollmentId, enrollments.id))
       .where(and(
         eq(programs.status, 'active'),
-        eq(enrollments.status, 'confirmed')
+        or(
+          eq(enrollments.status, 'confirmed'),
+          eq(payments.status, 'completed')
+        )
       ));
     
     return result[0]?.count || 0;
   }
   
   async getActiveProgramsCount(): Promise<number> {
+    // Count programs that have enrollments with confirmed status or completed payments
     const result = await db
-      .select({ count: sql<number>`count(*)` })
+      .select({ count: sql<number>`count(distinct ${programs.id})` })
       .from(programs)
-      .where(eq(programs.status, 'active'));
+      .leftJoin(enrollments, eq(enrollments.programId, programs.id))
+      .leftJoin(payments, eq(payments.enrollmentId, enrollments.id))
+      .where(and(
+        eq(programs.status, 'active'),
+        or(
+          eq(enrollments.status, 'confirmed'),
+          eq(payments.status, 'completed')
+        )
+      ));
     
     return result[0]?.count || 0;
   }
