@@ -12,6 +12,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { insertParentSchema, type InsertParent } from "@shared/schema";
 import { apiRequest, queryClient } from "../../lib/queryClient";
+import * as z from "zod";
+
+// Create a custom form schema that matches the database schema
+const formSchema = z.object({
+  name: z.string().min(1, "Parent name is required"),
+  email: z.string().email("Invalid email address").min(1, "Email is required"),
+  phone: z.string().min(1, "Phone number is required"),
+  emergencyPhone: z.string().nullable(),
+  neighborhood: z.string().nullable(),
+  address: z.string().nullable(),
+  notes: z.string().nullable(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function NewParent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,22 +33,22 @@ export default function NewParent() {
   const { toast } = useToast();
 
   // Define form with zod validation
-  const form = useForm<InsertParent>({
-    resolver: zodResolver(insertParentSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email: "",
       phone: "",
-      emergencyPhone: "",
-      neighborhood: "",
-      address: "",
-      notes: ""
+      emergencyPhone: null,
+      neighborhood: null,
+      address: null,
+      notes: null
     }
   });
 
   // Create mutation for submitting the form
   const createParentMutation = useMutation({
-    mutationFn: async (data: InsertParent) => {
+    mutationFn: async (data: FormValues) => {
       const res = await apiRequest("POST", "/api/parents", data);
       if (!res.ok) {
         const errorData = await res.json();
@@ -62,7 +76,7 @@ export default function NewParent() {
   });
 
   // Form submission handler
-  const onSubmit = (data: InsertParent) => {
+  const onSubmit = (data: FormValues) => {
     setIsSubmitting(true);
     createParentMutation.mutate(data);
   };
