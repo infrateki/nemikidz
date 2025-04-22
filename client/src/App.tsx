@@ -3,8 +3,9 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
+import NemiBotButton from "@/components/nemibot/nemi-bot-button";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
 import Dashboard from "@/pages/dashboard";
@@ -54,6 +55,12 @@ function Router() {
   );
 }
 
+// Componente contenedor para el chatbot que solo muestra cuando el usuario está autenticado
+function ChatbotContainer() {
+  const { user } = useAuth();
+  return user ? <NemiBotButton /> : null;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -61,6 +68,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <ChatbotContainer />
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>

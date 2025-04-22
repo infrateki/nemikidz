@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { Bot, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import NemiBotChat from './nemi-bot-chat';
+
+// Importando el componente de chat con lazy para mejor rendimiento
+const NemiBotChat = lazy(() => import('@/components/nemibot/nemi-bot-chat'));
 
 /**
  * Componente de botón flotante para acceder al chatbot NEMI
@@ -24,9 +26,18 @@ const NemiBotButton = () => {
         </Button>
       </div>
       
-      {/* Componente de la ventana de chat */}
+      {/* Componente de la ventana de chat con Suspense para la carga */}
       {isChatOpen && (
-        <NemiBotChat onClose={() => setIsChatOpen(false)} />
+        <Suspense fallback={
+          <div className="fixed bottom-24 right-6 w-96 h-[500px] shadow-xl z-50 bg-background rounded-lg flex items-center justify-center">
+            <div className="text-center">
+              <Bot className="w-12 h-12 mx-auto mb-2 text-blue-500 animate-pulse" />
+              <p>Cargando NEMI Bot...</p>
+            </div>
+          </div>
+        }>
+          <NemiBotChat onClose={() => setIsChatOpen(false)} />
+        </Suspense>
       )}
     </>
   );
