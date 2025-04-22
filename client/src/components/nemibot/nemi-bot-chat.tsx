@@ -64,17 +64,29 @@ const NemiBotChat: React.FC<NemiBotChatProps> = ({ onClose }) => {
     
     try {
       console.log('Enviando mensaje a NEMI Bot:', userMessage.text);
-      const response = await apiRequest<{ response: string }>('/api/nemibot', {
+      // Verificamos el estado de la sesión
+      
+      const response = await fetch('/api/nemibot', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ message: userMessage.text }),
+        credentials: 'include'
       });
-      console.log('Respuesta recibida de NEMI Bot:', response);
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Respuesta recibida de NEMI Bot:', data);
       
       setMessages((prev) => [
         ...prev,
         {
           id: (Date.now() + 1).toString(),
-          text: response.response,
+          text: data.response,
           sender: 'bot',
           timestamp: new Date(),
         },
