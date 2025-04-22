@@ -18,6 +18,20 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import * as z from "zod";
+
+// Create a custom form schema that matches the database schema
+const formSchema = z.object({
+  name: z.string().min(1, "Child's name is required"),
+  birthDate: z.string().min(1, "Birth date is required"),
+  parentId: z.number().min(1, "Parent is required"),
+  age: z.number().nullable(),
+  allergies: z.string().nullable(),
+  medicalNotes: z.string().nullable(),
+  interests: z.string().nullable()
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function NewChild() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,8 +44,8 @@ export default function NewChild() {
   });
 
   // Define form with zod validation
-  const form = useForm<InsertChild>({
-    resolver: zodResolver(insertChildSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       birthDate: new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString().split('T')[0],
@@ -45,7 +59,7 @@ export default function NewChild() {
 
   // Create mutation for submitting the form
   const createChildMutation = useMutation({
-    mutationFn: async (data: InsertChild) => {
+    mutationFn: async (data: FormValues) => {
       const res = await apiRequest("POST", "/api/children", data);
       if (!res.ok) {
         const errorData = await res.json();
@@ -73,7 +87,7 @@ export default function NewChild() {
   });
 
   // Form submission handler
-  const onSubmit = (data: InsertChild) => {
+  const onSubmit = (data: FormValues) => {
     setIsSubmitting(true);
     createChildMutation.mutate(data);
   };

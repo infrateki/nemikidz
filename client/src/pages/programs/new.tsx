@@ -18,6 +18,20 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import * as z from "zod";
+
+// Create a new schema to extend the insertProgramSchema
+const formSchema = z.object({
+  name: z.string().min(1, "Program name is required"),
+  description: z.string().nullable(),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().min(1, "End date is required"),
+  capacity: z.number().min(1, "Capacity must be at least 1"),
+  price: z.string().min(1, "Price is required"),
+  status: z.enum(["active", "complete", "cancelled", "draft"])
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function NewProgram() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,8 +39,8 @@ export default function NewProgram() {
   const { toast } = useToast();
 
   // Define form with zod validation
-  const form = useForm<InsertProgram>({
-    resolver: zodResolver(insertProgramSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       description: "",
@@ -40,7 +54,7 @@ export default function NewProgram() {
 
   // Create mutation for submitting the form
   const createProgramMutation = useMutation({
-    mutationFn: async (data: InsertProgram) => {
+    mutationFn: async (data: FormValues) => {
       const res = await apiRequest("POST", "/api/programs", data);
       if (!res.ok) {
         const errorData = await res.json();
@@ -68,7 +82,7 @@ export default function NewProgram() {
   });
 
   // Form submission handler
-  const onSubmit = (data: InsertProgram) => {
+  const onSubmit = (data: FormValues) => {
     setIsSubmitting(true);
     createProgramMutation.mutate(data);
   };
