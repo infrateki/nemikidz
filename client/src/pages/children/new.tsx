@@ -33,13 +33,13 @@ export default function NewChild() {
   const form = useForm<InsertChild>({
     resolver: zodResolver(insertChildSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      dateOfBirth: new Date(new Date().setFullYear(new Date().getFullYear() - 5)),
+      name: "",
+      birthDate: new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString().split('T')[0],
       parentId: 0,
-      allergies: "",
-      medicalNotes: "",
-      notes: ""
+      age: null,
+      allergies: null,
+      medicalNotes: null,
+      interests: null
     }
   });
 
@@ -105,39 +105,23 @@ export default function NewChild() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Child's first name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Child's last name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Child's full name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
-                name="dateOfBirth"
+                name="birthDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Date of Birth</FormLabel>
@@ -163,8 +147,23 @@ export default function NewChild() {
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={new Date(field.value)}
-                          onSelect={(date) => field.onChange(date)}
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              field.onChange(date.toISOString().split('T')[0]);
+                              
+                              // Calculate age
+                              const today = new Date();
+                              let age = today.getFullYear() - date.getFullYear();
+                              const monthDiff = today.getMonth() - date.getMonth();
+                              if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+                                age--;
+                              }
+                              
+                              // Set the age field
+                              form.setValue('age', age);
+                            }
+                          }}
                           disabled={(date) => date > new Date()}
                           captionLayout="dropdown-buttons"
                           fromYear={2000}
@@ -254,13 +253,13 @@ export default function NewChild() {
 
               <FormField
                 control={form.control}
-                name="notes"
+                name="interests"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Additional Notes</FormLabel>
+                    <FormLabel>Interests & Activities</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Any other important information about the child" 
+                        placeholder="Child's interests, hobbies, or preferred activities" 
                         className="min-h-[80px]" 
                         {...field} 
                         value={field.value || ""}
