@@ -19,14 +19,20 @@ import Inventory from "@/pages/inventory";
 import Reports from "@/pages/reports";
 import Settings from "@/pages/settings";
 import { Route } from "wouter";
+import NewProgram from "@/pages/programs/new";
+import NewChild from "@/pages/children/new";
+import NewParent from "@/pages/parents/new";
 
 function Router() {
   return (
     <Switch>
       <ProtectedRoute path="/" component={Dashboard} />
       <ProtectedRoute path="/programs" component={Programs} />
+      <ProtectedRoute path="/programs/new" component={NewProgram} />
       <ProtectedRoute path="/children" component={Children} />
+      <ProtectedRoute path="/children/new" component={NewChild} />
       <ProtectedRoute path="/parents" component={Parents} />
+      <ProtectedRoute path="/parents/new" component={NewParent} />
       <ProtectedRoute path="/enrollments" component={Enrollments} />
       <ProtectedRoute path="/payments" component={Payments} />
       <ProtectedRoute path="/attendance" component={Attendance} />

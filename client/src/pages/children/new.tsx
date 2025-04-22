@@ -84,7 +84,7 @@ export default function NewChild() {
       toast({
         title: "No parents in system",
         description: "You need to add a parent before adding a child",
-        variant: "warning",
+        variant: "destructive",
       });
     }
   }, [parents, isLoadingParents, toast]);

@@ -30,8 +30,8 @@ export default function NewProgram() {
     defaultValues: {
       name: "",
       description: "",
-      startDate: new Date(),
-      endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0],
       capacity: 15,
       price: "100.00",
       status: "draft"
@@ -151,8 +151,8 @@ export default function NewProgram() {
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={new Date(field.value)}
-                            onSelect={(date) => field.onChange(date)}
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => date && field.onChange(date.toISOString().split('T')[0])}
                             disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                           />
                         </PopoverContent>
@@ -190,8 +190,8 @@ export default function NewProgram() {
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={new Date(field.value)}
-                            onSelect={(date) => field.onChange(date)}
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => date && field.onChange(date.toISOString().split('T')[0])}
                             disabled={(date) => {
                               const startDate = form.getValues().startDate;
                               return date < new Date(startDate);
