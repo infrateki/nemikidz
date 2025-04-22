@@ -1,0 +1,725 @@
+# DOCUMENTO DE REQUISITOS DEL PRODUCTO (PRD)
+## Sistema de Gestión NEMI
+
+**Versión:** 1.0  
+**Fecha:** 21 de Abril de 2025  
+**Autor:** Senior Project Manager  
+**Cliente:** Daniela, NEMI Experiencias para la Infancia
+
+---
+
+## 1. RESUMEN EJECUTIVO
+
+El presente documento detalla los requisitos técnicos y funcionales para el desarrollo del Sistema de Gestión NEMI, una aplicación web que permitirá administrar todos los aspectos operativos, financieros y de comunicación del programa de actividades para niños. Este sistema reemplazará la actual implementación en Airtable, mejorando la eficiencia, automatizando procesos y proporcionando una experiencia más intuitiva tanto para el equipo administrativo como para los padres.
+
+---
+
+## 2. VISIÓN DEL PRODUCTO
+
+### 2.1 Objetivos Principales
+
+1. Centralizar la gestión de inscripciones, pagos y operaciones diarias de NEMI
+2. Automatizar el flujo desde la captura de prospectos en el landing page hasta la conversión en inscripciones
+3. Facilitar la comunicación entre el equipo NEMI y los padres/tutores
+4. Proporcionar análisis de datos y métricas para la toma de decisiones
+5. Garantizar la seguridad y privacidad de la información de los niños y sus familias
+
+### 2.2 Usuarios Principales
+
+1. **Administradores NEMI** (Daniela y Barbara): Gestión completa del sistema
+2. **Personal operativo**: Registro de asistencia, actividades y comunicaciones
+3. **Padres/Tutores**: Consulta de información y comunicación (futura fase)
+
+### 2.3 Valor del Negocio
+
+- Reducción de tiempo en tareas administrativas (estimado 70%)
+- Eliminación de errores en la gestión de pagos e inscripciones
+- Mejora en la experiencia de los padres, aumentando la tasa de retención y recomendación
+- Captura de datos para optimización de programas y planificación de crecimiento
+
+---
+
+## 3. ESPECIFICACIONES TÉCNICAS
+
+### 3.1 Stack Tecnológico
+
+#### Frontend
+- **Framework**: Next.js (versión más reciente estable)
+- **UI Library**: React
+- **Estilos**: Tailwind CSS
+- **Estado**: React Context API / SWR para fetching de datos
+- **Autenticación**: NextAuth.js
+- **Despliegue**: Replit
+
+#### Backend
+- **Framework**: Next.js API Routes
+- **Base de datos**: PostgreSQL
+- **ORM**: Prisma
+- **Autenticación**: JWT / NextAuth.js
+- **Almacenamiento**: Replit Database o servicio externo para archivos
+
+#### Automatización e Integración
+- **Plataforma**: n8n
+- **Integraciones**: Webhook del landing page, PostgreSQL
+
+### 3.2 Arquitectura del Sistema
+
+```
+┌─────────────────┐     ┌───────────────────┐     ┌───────────────┐
+│  Landing Page   │────▶│ n8n Automatización│────▶│ PostgreSQL DB │
+└─────────────────┘     └───────────────────┘     └───────┬───────┘
+                                                          │
+┌─────────────────┐     ┌───────────────────┐            │
+│  Cliente Web    │◀───▶│  Next.js API      │◀───────────┘
+│  (Next.js)      │     │                   │
+└─────────────────┘     └───────────────────┘
+```
+
+### 3.3 Infraestructura de Despliegue
+
+- **Entorno de desarrollo**: Replit (compartido para frontend y backend)
+- **Base de datos**: PostgreSQL gestionado por servicio externo (Supabase o similar)
+- **CI/CD**: Manual a través de Replit o automatización vía GitHub + Replit
+- **Monitoreo**: Integración con herramientas simples como UptimeRobot
+
+---
+
+## 4. MODELADO DE DATOS
+
+### 4.1 Diagrama Entidad-Relación
+
+```
+┌───────────────┐     ┌───────────────┐     ┌───────────────┐
+│   Programas   │     │ Inscripciones │     │     Niños     │
+│───────────────│     │───────────────│     │───────────────│
+│ id (PK)       │     │ id (PK)       │     │ id (PK)       │
+│ nombre        │     │ programa_id   │◀────│ nombre        │
+│ descripcion   │     │ niño_id       │     │ edad          │
+│ fechas        │◀────│ estado        │     │ alergias      │
+│ capacidad     │     │ monto         │     │ notas         │
+│ precio        │     │ descuento     │     │ padre_id      │──┐
+└───────────────┘     └───────────────┘     └───────────────┘  │
+                              │                                 │
+                              ▼                                 │
+                      ┌───────────────┐                        │
+                      │     Pagos     │                        │
+                      │───────────────│                        │
+                      │ id (PK)       │                        │
+                      │ inscripcion_id│                        ▼
+                      │ monto         │              ┌───────────────┐
+                      │ fecha         │              │  Padres       │
+                      │ metodo        │              │───────────────│
+                      │ estado        │              │ id (PK)       │
+                      └───────────────┘              │ nombre        │
+                                                     │ email         │
+┌───────────────┐     ┌───────────────┐              │ telefono      │
+│  Actividades  │     │  Asistencia   │              │ colonia       │
+│───────────────│     │───────────────│              └───────────────┘
+│ id (PK)       │     │ id (PK)       │                      │
+│ programa_id   │     │ niño_id       │                      │
+│ nombre        │     │ fecha         │                      │
+│ descripcion   │     │ presente      │                      │
+│ fecha         │     │ notas         │                      │
+│ hora_inicio   │     └───────────────┘                      │
+│ hora_fin      │                                            ▼
+└───────────────┘                                   ┌───────────────┐
+                                                    │ Comunicaciones│
+┌───────────────┐                                   │───────────────│
+│  Inventario   │                                   │ id (PK)       │
+│───────────────│                                   │ padre_id      │
+│ id (PK)       │                                   │ tipo          │
+│ nombre        │                                   │ asunto        │
+│ cantidad      │                                   │ contenido     │
+│ categoria     │                                   │ fecha         │
+│ notas         │                                   │ estado        │
+└───────────────┘                                   └───────────────┘
+```
+
+### 4.2 Modelo de Datos Detallado
+
+#### Tabla: Programas
+| Campo       | Tipo          | Descripción                                     |
+|-------------|---------------|-------------------------------------------------|
+| id          | UUID          | Identificador único                             |
+| nombre      | VARCHAR(100)  | Nombre del programa o semana temática           |
+| descripcion | TEXT          | Descripción detallada                           |
+| fecha_inicio| DATE          | Fecha de inicio                                 |
+| fecha_fin   | DATE          | Fecha de finalización                           |
+| capacidad   | INTEGER       | Número máximo de participantes                  |
+| precio      | DECIMAL(10,2) | Precio base del programa                        |
+| estado      | ENUM          | (Activo, Completo, Cancelado, Borrador)         |
+| creado_en   | TIMESTAMP     | Fecha de creación del registro                  |
+| actualizado_en | TIMESTAMP  | Fecha de última actualización                   |
+
+#### Tabla: Niños
+| Campo       | Tipo          | Descripción                                     |
+|-------------|---------------|-------------------------------------------------|
+| id          | UUID          | Identificador único                             |
+| nombre      | VARCHAR(100)  | Nombre completo                                 |
+| fecha_nacimiento | DATE     | Fecha de nacimiento                             |
+| edad        | INTEGER       | Edad actual (calculada)                         |
+| alergias    | TEXT          | Descripciones de alergias                       |
+| notas_medicas | TEXT        | Información relevante de salud                  |
+| intereses   | TEXT          | Gustos e intereses del niño                     |
+| padre_id    | UUID          | Referencia al padre/tutor (FK)                  |
+| creado_en   | TIMESTAMP     | Fecha de creación del registro                  |
+| actualizado_en | TIMESTAMP  | Fecha de última actualización                   |
+
+#### Tabla: Padres
+| Campo       | Tipo          | Descripción                                     |
+|-------------|---------------|-------------------------------------------------|
+| id          | UUID          | Identificador único                             |
+| nombre      | VARCHAR(100)  | Nombre completo                                 |
+| email       | VARCHAR(100)  | Correo electrónico (único)                      |
+| telefono    | VARCHAR(20)   | Número de teléfono                              |
+| telefono_emergencia | VARCHAR(20) | Contacto de emergencia                   |
+| colonia     | VARCHAR(100)  | Zona de residencia                              |
+| direccion   | TEXT          | Dirección completa                              |
+| notas       | TEXT          | Información adicional                           |
+| creado_en   | TIMESTAMP     | Fecha de creación del registro                  |
+| actualizado_en | TIMESTAMP  | Fecha de última actualización                   |
+
+#### Tabla: Inscripciones
+| Campo       | Tipo          | Descripción                                     |
+|-------------|---------------|-------------------------------------------------|
+| id          | UUID          | Identificador único                             |
+| programa_id | UUID          | Referencia al programa (FK)                     |
+| niño_id     | UUID          | Referencia al niño inscrito (FK)                |
+| estado      | ENUM          | (Pendiente, Confirmado, Cancelado)              |
+| monto       | DECIMAL(10,2) | Monto total a pagar                             |
+| descuento   | DECIMAL(10,2) | Descuento aplicado                              |
+| notas       | TEXT          | Notas específicas para esta inscripción         |
+| fecha_inscripcion | DATE    | Fecha en que se realizó la inscripción          |
+| creado_en   | TIMESTAMP     | Fecha de creación del registro                  |
+| actualizado_en | TIMESTAMP  | Fecha de última actualización                   |
+
+#### Tabla: Pagos
+| Campo       | Tipo          | Descripción                                     |
+|-------------|---------------|-------------------------------------------------|
+| id          | UUID          | Identificador único                             |
+| inscripcion_id | UUID       | Referencia a la inscripción (FK)                |
+| monto       | DECIMAL(10,2) | Monto del pago                                  |
+| fecha       | DATE          | Fecha en que se realizó el pago                 |
+| metodo      | ENUM          | (Transferencia, Efectivo, Tarjeta)              |
+| estado      | ENUM          | (Pendiente, Completado, Fallido, Reembolsado)   |
+| referencia  | VARCHAR(100)  | Número de referencia o transacción              |
+| notas       | TEXT          | Notas sobre el pago                             |
+| creado_en   | TIMESTAMP     | Fecha de creación del registro                  |
+| actualizado_en | TIMESTAMP  | Fecha de última actualización                   |
+
+#### Tablas adicionales (resto de módulos)
+Seguiría el mismo patrón para definir el resto de tablas:
+- Actividades
+- Asistencia
+- Inventario 
+- Personal
+- Comunicaciones
+
+### 4.3 Migración de Datos desde Airtable
+
+Se implementará un script de migración único para la transición inicial:
+
+1. Exportar datos de Airtable en formato CSV o JSON
+2. Transformar esquema de datos al nuevo modelo en PostgreSQL
+3. Importar datos verificando integridad y relaciones
+4. Validación post-migración con reportes de integridad
+
+---
+
+## 5. REQUISITOS FUNCIONALES
+
+### 5.1 Módulo de Dashboard
+
+**RF-DASH-01:** El sistema mostrará en el dashboard principal las métricas clave:
+- Número total de niños inscritos
+- Ingresos totales/proyectados
+- Porcentaje de ocupación por semana
+- Pagos pendientes
+- Actividades próximas
+
+**RF-DASH-02:** El dashboard incluirá gráficas visuales para:
+- Distribución de inscripciones por semana
+- Evolución de ingresos
+- Estado de pagos (completados vs pendientes)
+
+### 5.2 Módulo de Registro e Inscripciones
+
+**RF-REG-01:** Gestión de Programas/Semanas
+- CRUD completo de programas
+- Configuración de fechas, capacidad y precios
+- Establecimiento de descuentos específicos
+- Visualización de estado de ocupación
+
+**RF-REG-02:** Registro de Niños
+- CRUD completo de participantes
+- Almacenamiento de información médica relevante
+- Vinculación con padres/tutores
+- Historial de participación en programas anteriores
+
+**RF-REG-03:** Registro de Padres/Tutores
+- CRUD completo de contactos
+- Gestión de información de contacto y facturación
+- Configuración de preferencias de comunicación
+- Historial de interacciones
+
+**RF-REG-04:** Gestión de Inscripciones
+- Proceso de inscripción simplificado
+- Aplicación de descuentos automáticos
+- Cálculo de disponibilidad por programa
+- Generación de confirmaciones
+
+### 5.3 Módulo Financiero
+
+**RF-FIN-01:** Registro de Pagos
+- Registro manual de pagos por diferentes métodos
+- Verificación de pagos contra inscripciones
+- Gestión de pagos parciales
+- Seguimiento de pagos pendientes
+
+**RF-FIN-02:** Facturación
+- Generación de recibos de pago
+- Información para facturación fiscal
+- Envío automático por email
+
+**RF-FIN-03:** Reportes Financieros
+- Ingresos por período
+- Proyecciones basadas en inscripciones
+- Análisis de descuentos aplicados
+- Seguimiento de deudores
+
+### 5.4 Módulo de Operación Diaria
+
+**RF-OP-01:** Control de Asistencia
+- Registro diario de asistentes
+- Notas sobre comportamiento/incidencias
+- Historial de asistencia por niño
+- Alertas sobre ausencias frecuentes
+
+**RF-OP-02:** Programación de Actividades
+- Planificación detallada por día/semana
+- Asignación de recursos necesarios
+- Visualización en calendario
+- Gestión de actividades especiales
+
+**RF-OP-03:** Registro de Incidencias
+- Documentación de situaciones relevantes
+- Seguimiento de acciones tomadas
+- Notificación a padres cuando sea necesario
+
+### 5.5 Módulo de Recursos y Logística
+
+**RF-REC-01:** Inventario de Materiales
+- CRUD de inventario
+- Control de stock disponible
+- Alertas de necesidad de reposición
+- Asignación a actividades específicas
+
+**RF-REC-02:** Gestión de Personal
+- Registro de educadores/especialistas
+- Programación de horarios
+- Asignación a grupos específicos
+
+### 5.6 Módulo de Comunicación y Seguimiento
+
+**RF-COM-01:** Gestión de Comunicaciones
+- Registro de mensajes enviados/recibidos
+- Plantillas predefinidas para comunicaciones frecuentes
+- Seguimiento de respuestas
+- Programación de recordatorios automáticos
+
+**RF-COM-02:** Notificaciones Automáticas
+- Confirmación de inscripciones
+- Recordatorios de pago
+- Información importante sobre actividades
+
+### 5.7 Integración con Landing Page
+
+**RF-INT-01:** Captura de Leads desde el Landing Page
+- Formulario de registro inicial en el landing page
+- Transferencia automática de datos a la base de datos vía n8n
+- Notificaciones al equipo sobre nuevos prospectos
+- Seguimiento del estado de conversión
+
+### 5.8 Administración del Sistema
+
+**RF-ADM-01:** Gestión de Usuarios
+- CRUD de usuarios del sistema
+- Asignación de roles y permisos
+- Registro de actividad de usuarios
+
+**RF-ADM-02:** Configuración General
+- Parámetros generales del sistema
+- Valores predeterminados
+- Plantillas de correo
+
+---
+
+## 6. REQUISITOS NO FUNCIONALES
+
+### 6.1 Usabilidad
+
+**RNF-US-01:** La interfaz debe ser intuitiva y requerir mínima capacitación
+**RNF-US-02:** Tiempo de respuesta máximo de 2 segundos para operaciones comunes
+**RNF-US-03:** Diseño responsive para uso en dispositivos móviles y tablets
+**RNF-US-04:** Accesibilidad básica según estándares WCAG 2.1 nivel A
+
+### 6.2 Rendimiento
+
+**RNF-RE-01:** Capacidad para gestionar hasta 1,000 registros de niños sin degradación
+**RNF-RE-02:** Tiempo de carga inicial menor a 3 segundos en conexiones estándar
+**RNF-RE-03:** Capacidad de generar reportes completos en menos de 5 segundos
+
+### 6.3 Seguridad
+
+**RNF-SE-01:** Autenticación segura mediante JWT y protección CSRF
+**RNF-SE-02:** Cifrado de datos sensibles en la base de datos
+**RNF-SE-03:** Registro detallado de acciones críticas (audit log)
+**RNF-SE-04:** Cumplimiento con regulaciones de protección de datos personales
+
+### 6.4 Mantenibilidad
+
+**RNF-MA-01:** Código fuente documentado siguiendo estándares JSDoc
+**RNF-MA-02:** Arquitectura modular que facilite actualizaciones parciales
+**RNF-MA-03:** Cobertura mínima de pruebas del 70% para funcionalidades críticas
+
+---
+
+## 7. API Y ENDPOINTS
+
+### 7.1 Estructura de la API
+
+La API seguirá los principios RESTful con los siguientes endpoints principales:
+
+#### Programas
+- `GET /api/programas` - Obtener todos los programas
+- `GET /api/programas/:id` - Obtener un programa específico
+- `POST /api/programas` - Crear nuevo programa
+- `PUT /api/programas/:id` - Actualizar programa existente
+- `DELETE /api/programas/:id` - Eliminar programa
+
+#### Niños
+- `GET /api/ninos` - Obtener todos los niños registrados
+- `GET /api/ninos/:id` - Obtener un niño específico
+- `POST /api/ninos` - Registrar nuevo niño
+- `PUT /api/ninos/:id` - Actualizar información de niño
+- `DELETE /api/ninos/:id` - Eliminar registro de niño
+
+#### Padres
+- `GET /api/padres` - Obtener todos los padres/tutores
+- `GET /api/padres/:id` - Obtener un padre/tutor específico
+- `POST /api/padres` - Registrar nuevo padre/tutor
+- `PUT /api/padres/:id` - Actualizar información de padre/tutor
+- `DELETE /api/padres/:id` - Eliminar registro de padre/tutor
+
+#### Inscripciones
+- `GET /api/inscripciones` - Obtener todas las inscripciones
+- `GET /api/inscripciones/:id` - Obtener una inscripción específica
+- `POST /api/inscripciones` - Crear nueva inscripción
+- `PUT /api/inscripciones/:id` - Actualizar inscripción existente
+- `DELETE /api/inscripciones/:id` - Cancelar/eliminar inscripción
+
+#### Pagos
+- `GET /api/pagos` - Obtener todos los pagos
+- `GET /api/pagos/:id` - Obtener un pago específico
+- `POST /api/pagos` - Registrar nuevo pago
+- `PUT /api/pagos/:id` - Actualizar información de pago
+- `DELETE /api/pagos/:id` - Anular pago
+
+### 7.2 Estructura de Datos JSON
+
+Ejemplos de formatos de datos para las operaciones principales:
+
+#### Programa (JSON)
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "nombre": "Semana 1: Exploradores de la Naturaleza",
+  "descripcion": "Actividades de exploración y contacto con la naturaleza",
+  "fecha_inicio": "2025-06-30",
+  "fecha_fin": "2025-07-04",
+  "capacidad": 15,
+  "precio": 3000.00,
+  "estado": "Activo"
+}
+```
+
+#### Niño (JSON)
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440001",
+  "nombre": "Sofía Rodríguez",
+  "fecha_nacimiento": "2019-03-15",
+  "edad": 6,
+  "alergias": "Ninguna",
+  "notas_medicas": "Sin restricciones",
+  "intereses": "Le gustan los animales y dibujar",
+  "padre_id": "550e8400-e29b-41d4-a716-446655440010"
+}
+```
+
+#### Inscripción (JSON)
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440020",
+  "programa_id": "550e8400-e29b-41d4-a716-446655440000",
+  "niño_id": "550e8400-e29b-41d4-a716-446655440001",
+  "estado": "Confirmado",
+  "monto": 3000.00,
+  "descuento": 0.00,
+  "notas": "",
+  "fecha_inscripcion": "2025-05-15"
+}
+```
+
+### 7.3 Webhook para integración con Landing Page
+
+Endpoint público para recibir datos del formulario:
+
+`POST /api/webhook/landing-form`
+
+Estructura esperada:
+```json
+{
+  "nombre_padre": "Ana Rodríguez",
+  "email": "ana.rodriguez@gmail.com",
+  "telefono": "33 1234 5678",
+  "nombre_niño": "Sofía Rodríguez",
+  "edad_niño": 6,
+  "semanas_interes": [1, 2, 3],
+  "comentarios": "Me interesa saber más sobre las actividades específicas"
+}
+```
+
+---
+
+## 8. FLUJOS DE USUARIO
+
+### 8.1 Flujo de Inscripción
+
+1. Padre completa formulario en landing page
+2. n8n procesa datos y crea registro preliminar
+3. Administrador recibe notificación de nuevo prospecto
+4. Administrador contacta al padre para completar detalles
+5. Administrador registra inscripción formal en el sistema
+6. Sistema envía confirmación y detalles de pago
+7. Padre realiza pago
+8. Administrador registra pago en sistema
+9. Sistema envía confirmación final y detalles del programa
+
+### 8.2 Flujo de Operación Diaria
+
+1. Personal accede al sistema al inicio del día
+2. Consulta lista de niños programados para el día
+3. Registra asistencia conforme llegan los niños
+4. Consulta agenda de actividades programadas
+5. Registra notas o incidencias durante el día
+6. Al final del día, completa registro de información relevante
+7. Sistema genera reporte diario
+
+### 8.3 Flujo de Gestión Financiera
+
+1. Administrador recibe notificación de pago pendiente
+2. Contacta al padre para coordinar pago
+3. Registra pago recibido
+4. Sistema actualiza estado de la inscripción
+5. Sistema genera recibo y lo envía al padre
+6. Administrador consulta reporte financiero actualizado
+
+---
+
+## 9. AUTOMATIZACIONES CON N8N
+
+### 9.1 Flujo: Captura de Leads desde Landing Page
+
+1. Formulario de landing page envía datos vía webhook
+2. n8n recibe los datos y:
+   - Verifica que no exista duplicado en la base de datos
+   - Crea registro en tabla de prospectos
+   - Notifica al equipo NEMI de nuevo lead
+   - Envía email de confirmación al prospecto
+
+### 9.2 Flujo: Recordatorios de Pago
+
+1. Tarea programada diaria
+2. n8n consulta pagos pendientes próximos a vencer
+3. Genera emails personalizados de recordatorio
+4. Envía notificaciones a padres
+5. Actualiza estado en sistema como "recordatorio enviado"
+
+### 9.3 Flujo: Confirmación de Inscripción
+
+1. Cuando se marca un pago como completado
+2. n8n detecta el cambio de estado
+3. Genera email personalizado con detalles del programa
+4. Envía confirmación al padre/tutor
+5. Actualiza estado en sistema
+
+---
+
+## 10. INTERFAZ DE USUARIO
+
+### 10.1 Especificaciones Generales
+
+- **Tema de colores**: Paleta basada en los colores NEMI (verde esmeralda como primario)
+- **Tipografía**: Sistema sans-serif (Inter o similar)
+- **Componentes**: Basados en Tailwind UI o similar
+- **Responsive**: Breakpoints estándar para móvil, tablet y escritorio
+
+### 10.2 Wireframes Principales
+
+Referirse al prototipo visual desarrollado previamente para las siguientes pantallas:
+- Dashboard principal
+- Gestión de programas
+- Registro de niños
+- Gestión de inscripciones
+- Control de pagos
+- Asistencia diaria
+- Programación de actividades
+
+---
+
+## 11. PLAN DE IMPLEMENTACIÓN
+
+### 11.1 Fases del Proyecto
+
+#### Fase 1: MVP (6 semanas)
+- Configuración de entorno (Replit + PostgreSQL)
+- Implementación de modelos de datos core
+- Desarrollo de funcionalidades críticas:
+  - Registro de programas
+  - Registro de niños y padres
+  - Gestión de inscripciones
+  - Registro de pagos
+- UI básica para administradores
+- Integración inicial con landing page
+
+#### Fase 2: Operación Completa (4 semanas)
+- Módulo de operación diaria
+- Gestión de asistencia
+- Programación de actividades
+- Reportes básicos
+- Mejoras de UI/UX
+
+#### Fase 3: Automatización y Optimización (4 semanas)
+- Implementación completa de n8n
+- Comunicaciones automatizadas
+- Reportes avanzados
+- Refinamiento de UI/UX
+- Pruebas de carga y optimización
+
+### 11.2 Priorización de Requisitos
+
+**Prioridad Alta (P0)**:
+- Registro de programas, niños, padres
+- Gestión de inscripciones
+- Registro de pagos
+- Integración con landing page
+
+**Prioridad Media (P1)**:
+- Control de asistencia
+- Programación de actividades
+- Reportes básicos
+- Comunicaciones automáticas
+
+**Prioridad Baja (P2)**:
+- Gestión avanzada de inventario
+- Reportes personalizados
+- Portal para padres
+
+---
+
+## 12. CONSIDERACIONES ADICIONALES
+
+### 12.1 Seguridad y Privacidad
+
+- Se implementará autenticación JWT robusta
+- Datos sensibles cifrados en reposo
+- Acceso basado en roles (RBAC)
+- Logs de auditoría para acciones críticas
+- Políticas claras de retención de datos
+
+### 12.2 Respaldo y Recuperación
+
+- Backups automáticos diarios de la base de datos
+- Retención de backups por 30 días
+- Documentación de procedimientos de recuperación
+
+### 12.3 Mantenimiento Futuro
+
+- Documentación técnica completa
+- Comentarios en código fuente
+- Pruebas automatizadas para funcionalidades críticas
+- Plan de actualizaciones periódicas
+
+---
+
+## 13. CRITERIOS DE ACEPTACIÓN
+
+### 13.1 Criterios Generales
+
+1. El sistema debe permitir la gestión completa del ciclo de vida de inscripciones
+2. Los datos migrados desde Airtable deben mantener su integridad
+3. La interfaz debe ser intuitiva y requerir mínima capacitación
+4. El sistema debe integrarse correctamente con el landing page
+5. Las automatizaciones con n8n deben funcionar de manera confiable
+
+### 13.2 Criterios por Módulo
+
+**Registro e Inscripciones**:
+- Creación exitosa de programas con todos sus parámetros
+- Registro de niños y padres sin duplicación
+- Proceso de inscripción completo verificable
+
+**Finanzas**:
+- Registro correcto de pagos con diferentes métodos
+- Cálculos precisos de montos, descuentos y saldos
+- Reportes financieros con datos verificables
+
+**Operación Diaria**:
+- Registro de asistencia funcional y eficiente
+- Programación de actividades clara y útil
+- Capacidad para documentar incidencias
+
+**Integración**:
+- Transferencia correcta de datos desde el landing page
+- Notificaciones automáticas funcionando
+- Envío de correos electrónicos sin errores
+
+---
+
+## 14. GLOSARIO DE TÉRMINOS
+
+| Término | Definición |
+|---------|------------|
+| NEMI | Proyecto educativo para niños de 3-9 años basado en naturaleza, arte y juego |
+| Programa | Una semana temática específica dentro del curso NEMI |
+| n8n | Plataforma de automatización de flujos de trabajo |
+| Lead | Prospecto o contacto interesado que ha llenado el formulario inicial |
+| PRD | Product Requirements Document - Documento de Requisitos del Producto |
+| RBAC | Role-Based Access Control - Control de Acceso Basado en Roles |
+
+---
+
+## 15. APÉNDICES
+
+### Apéndice A: Mockups UI
+
+Ver prototipo visual adjunto.
+
+### Apéndice B: Scripts de Migración
+
+Se desarrollarán durante la fase de implementación.
+
+### Apéndice C: Documentación API
+
+Se generará automáticamente con Swagger/OpenAPI durante el desarrollo.
+
+---
+
+**APROBACIONES**
+
+| Rol | Nombre | Firma | Fecha |
+|-----|--------|-------|-------|
+| Cliente | Daniela | _____________ | ___/___/___ |
+| Project Manager | _____________ | _____________ | ___/___/___ |
+| Lead Developer | _____________ | _____________ | ___/___/___ |
