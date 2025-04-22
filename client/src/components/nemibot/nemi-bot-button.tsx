@@ -25,11 +25,7 @@ const NemiBotButton = () => {
         >
           {isChatOpen ? 
             <X size={24} /> : 
-            <img 
-              src="/src/assets/nemi-logo.svg" 
-              alt="NEMI Bot Logo" 
-              className="w-6 h-6"
-            />
+            <NemiLogo className="w-6 h-6" />
           }
         </Button>
       </div>
@@ -39,11 +35,7 @@ const NemiBotButton = () => {
         <Suspense fallback={
           <div className="fixed bottom-24 right-6 w-96 h-[500px] shadow-xl z-50 bg-background rounded-lg flex items-center justify-center">
             <div className="text-center">
-              <img 
-                src="/src/assets/nemi-logo.svg" 
-                alt="NEMI Bot Logo" 
-                className="w-12 h-12 mx-auto mb-2 animate-pulse" 
-              />
+              <NemiLogo className="w-12 h-12 mx-auto mb-2 animate-pulse" />
               <p>Cargando NEMI Bot...</p>
             </div>
           </div>

@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, X, Loader2, Bot } from 'lucide-react';
+import { Send, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/apiRequest';
+import NemiLogo from './nemi-logo';
 
 interface NemiBotChatProps {
   onClose: () => void;
@@ -102,11 +103,7 @@ const NemiBotChat: React.FC<NemiBotChatProps> = ({ onClose }) => {
       <CardHeader className="px-4 py-3 border-b flex-shrink-0 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
-            <img 
-              src="/src/assets/nemi-logo.svg" 
-              alt="NEMI Bot Logo" 
-              className="w-full h-full object-contain"
-            />
+            <NemiLogo className="w-full h-full" />
           </div>
           <CardTitle className="text-lg">NEMI Bot</CardTitle>
         </div>
@@ -132,29 +129,41 @@ const NemiBotChat: React.FC<NemiBotChatProps> = ({ onClose }) => {
                 message.sender === 'user' ? 'justify-end' : 'justify-start'
               }`}
             >
-              <div
-                className={`rounded-lg px-4 py-2 max-w-[90%] ${
-                  message.sender === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700'
-                }`}
-              >
-                <p className="text-sm">{message.text}</p>
-                <p className="text-xs opacity-70 mt-1">
-                  {message.timestamp.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </p>
+              <div className="flex items-start">
+                {message.sender === 'bot' && (
+                  <div className="mr-2 mt-1 flex-shrink-0">
+                    <NemiLogo className="w-6 h-6" />
+                  </div>
+                )}
+                <div
+                  className={`rounded-lg px-4 py-2 max-w-[90%] ${
+                    message.sender === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700'
+                  }`}
+                >
+                  <p className="text-sm">{message.text}</p>
+                  <p className="text-xs opacity-70 mt-1">
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
           {isLoading && (
             <div className="flex justify-start mb-4">
-              <div className="rounded-lg px-4 py-2 bg-gray-100 dark:bg-gray-700">
-                <div className="flex items-center space-x-2">
-                  <Loader2 size={16} className="animate-spin" />
-                  <p className="text-sm">Escribiendo...</p>
+              <div className="flex items-start">
+                <div className="mr-2 mt-1 flex-shrink-0">
+                  <NemiLogo className="w-6 h-6" />
+                </div>
+                <div className="rounded-lg px-4 py-2 bg-gray-100 dark:bg-gray-700">
+                  <div className="flex items-center space-x-2">
+                    <Loader2 size={16} className="animate-spin" />
+                    <p className="text-sm">Escribiendo...</p>
+                  </div>
                 </div>
               </div>
             </div>
