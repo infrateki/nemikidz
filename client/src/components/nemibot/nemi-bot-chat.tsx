@@ -101,8 +101,12 @@ const NemiBotChat: React.FC<NemiBotChatProps> = ({ onClose }) => {
     <Card className="fixed bottom-24 right-6 w-96 h-[500px] shadow-xl z-50 flex flex-col">
       <CardHeader className="px-4 py-3 border-b flex-shrink-0 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <div className="bg-blue-500 w-8 h-8 rounded-full flex items-center justify-center">
-            <Bot size={20} className="text-white" />
+          <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
+            <img 
+              src="/src/assets/nemi-logo.svg" 
+              alt="NEMI Bot Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
           <CardTitle className="text-lg">NEMI Bot</CardTitle>
         </div>
