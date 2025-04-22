@@ -561,15 +561,13 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .select({ count: sql<number>`count(distinct ${enrollments.childId})` })
       .from(enrollments)
-      .innerJoin(programs, eq(enrollments.programId, programs.id))
       .innerJoin(payments, eq(payments.enrollmentId, enrollments.id))
-      .where(and(
-        eq(programs.status, 'active'),
+      .where(
         or(
           eq(enrollments.status, 'confirmed'),
           eq(payments.status, 'completed')
         )
-      ));
+      );
     
     return result[0]?.count || 0;
   }
@@ -579,15 +577,14 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .select({ count: sql<number>`count(distinct ${programs.id})` })
       .from(programs)
-      .leftJoin(enrollments, eq(enrollments.programId, programs.id))
-      .leftJoin(payments, eq(payments.enrollmentId, enrollments.id))
-      .where(and(
-        eq(programs.status, 'active'),
+      .innerJoin(enrollments, eq(enrollments.programId, programs.id))
+      .innerJoin(payments, eq(payments.enrollmentId, enrollments.id))
+      .where(
         or(
           eq(enrollments.status, 'confirmed'),
           eq(payments.status, 'completed')
         )
-      ));
+      );
     
     return result[0]?.count || 0;
   }
