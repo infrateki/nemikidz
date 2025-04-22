@@ -25,6 +25,8 @@ const formSchema = z.object({
   programId: z.number().min(1, "Program is required"),
   enrollmentDate: z.string().min(1, "Enrollment date is required"),
   status: z.enum(["pending", "confirmed", "cancelled"]),
+  amount: z.string().min(1, "Amount is required"),
+  discount: z.string().optional().default("0"),
   notes: z.string().nullable(),
 });
 
@@ -52,6 +54,8 @@ export default function NewEnrollment() {
       programId: 0,
       enrollmentDate: new Date().toISOString().split('T')[0],
       status: "pending",
+      amount: "",
+      discount: "0",
       notes: null
     }
   });
@@ -244,6 +248,52 @@ export default function NewEnrollment() {
                     </Select>
                     <FormDescription>
                       The current status of the enrollment
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter the enrollment amount" 
+                        {...field} 
+                        type="number"
+                        step="0.01"
+                        min="0"
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      The total cost of the enrollment
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="discount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Discount</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter any discount amount" 
+                        {...field} 
+                        type="number"
+                        step="0.01"
+                        min="0"
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Any discount applied to this enrollment
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
