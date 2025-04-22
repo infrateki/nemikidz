@@ -25,6 +25,7 @@ import NewParent from "@/pages/parents/new";
 import NewEnrollment from "@/pages/enrollments/new";
 import NewPayment from "@/pages/payments/new";
 import NewInventoryItem from "@/pages/inventory/new";
+import NewCommunication from "@/pages/communications/new";
 
 function Router() {
   return (
@@ -42,6 +43,7 @@ function Router() {
       <ProtectedRoute path="/payments/new" component={NewPayment} />
       <ProtectedRoute path="/attendance" component={Attendance} />
       <ProtectedRoute path="/communications" component={Communications} />
+      <ProtectedRoute path="/communications/new" component={NewCommunication} />
       <ProtectedRoute path="/inventory" component={Inventory} />
       <ProtectedRoute path="/inventory/new" component={NewInventoryItem} />
       <ProtectedRoute path="/reports" component={Reports} />
