@@ -601,17 +601,18 @@ export class DatabaseStorage implements IStorage {
   async getTodayAttendanceStats(): Promise<{ present: number, total: number }> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const formattedDate = today.toISOString().split('T')[0];
     
     const totalResult = await db
       .select({ count: sql<number>`count(*)` })
       .from(attendance)
-      .where(eq(attendance.date, today));
+      .where(sql`${attendance.date}::text LIKE ${formattedDate + '%'}`);
     
     const presentResult = await db
       .select({ count: sql<number>`count(*)` })
       .from(attendance)
       .where(and(
-        eq(attendance.date, today),
+        sql`${attendance.date}::text LIKE ${formattedDate + '%'}`,
         eq(attendance.present, true)
       ));
     
