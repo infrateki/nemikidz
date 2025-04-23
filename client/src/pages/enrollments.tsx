@@ -83,24 +83,24 @@ export default function Enrollments() {
                 {enrollments.map((enrollment) => (
                   <TableRow key={enrollment.id}>
                     <TableCell>
-                      <Button variant="ghost" className="p-0 hover:bg-transparent" asChild>
-                        <Link href={`/programs/${enrollment.programId}`}>
+                      <Link href={`/programs/${enrollment.programId}`}>
+                        <Button variant="ghost" className="p-0 hover:bg-transparent">
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 mr-2 text-primary-600" />
                             <span>Programa #{enrollment.programId}</span>
                           </div>
-                        </Link>
-                      </Button>
+                        </Button>
+                      </Link>
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" className="p-0 hover:bg-transparent" asChild>
-                        <Link href={`/children/${enrollment.childId}`}>
+                      <Link href={`/children/${enrollment.childId}`}>
+                        <Button variant="ghost" className="p-0 hover:bg-transparent">
                           <div className="flex items-center">
                             <User className="h-4 w-4 mr-2 text-blue-600" />
                             <span>Niño #{enrollment.childId}</span>
                           </div>
-                        </Link>
-                      </Button>
+                        </Button>
+                      </Link>
                     </TableCell>
                     <TableCell>{formatDate(enrollment.enrollmentDate)}</TableCell>
                     <TableCell>

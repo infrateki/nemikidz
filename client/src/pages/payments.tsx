@@ -118,14 +118,14 @@ export default function Payments() {
                   <TableRow key={payment.id}>
                     <TableCell className="font-medium">#{payment.id}</TableCell>
                     <TableCell>
-                      <Button variant="ghost" className="p-0 hover:bg-transparent" asChild>
-                        <Link href={`/enrollments/${payment.enrollmentId}`}>
+                      <Link href={`/enrollments/${payment.enrollmentId}`}>
+                        <Button variant="ghost" className="p-0 hover:bg-transparent">
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 mr-2 text-primary-600" />
                             <span>Inscripción #{payment.enrollmentId}</span>
                           </div>
-                        </Link>
-                      </Button>
+                        </Button>
+                      </Link>
                     </TableCell>
                     <TableCell>{formatDate(payment.paymentDate)}</TableCell>
                     <TableCell className="font-medium text-green-700">
@@ -135,16 +135,16 @@ export default function Payments() {
                     <TableCell>{getStatusBadge(payment.status)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Button variant="outline" size="icon" asChild>
-                          <Link href={`/payments/${payment.id}`}>
+                        <Link href={`/payments/${payment.id}`}>
+                          <Button variant="outline" size="icon">
                             <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button variant="outline" size="icon" asChild>
-                          <Link href={`/payments/${payment.id}/edit`}>
+                          </Button>
+                        </Link>
+                        <Link href={`/payments/${payment.id}/edit`}>
+                          <Button variant="outline" size="icon">
                             <Edit className="h-4 w-4" />
-                          </Link>
-                        </Button>
+                          </Button>
+                        </Link>
                         <Button variant="outline" size="icon">
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
