@@ -31,13 +31,13 @@ const pdfOptions = {
 // Configuración de los estilos de documentos
 const styleConfig = {
   fontSize: 10,
-  fontStyle: 'normal',
+  fontStyle: 'normal' as const,
   headerFontSize: 12,
-  headerFontStyle: 'bold',
+  headerFontStyle: 'bold' as const,
   titleFontSize: 18,
-  titleFontStyle: 'bold',
+  titleFontStyle: 'bold' as const,
   subtitleFontSize: 14,
-  subtitleFontStyle: 'normal',
+  subtitleFontStyle: 'normal' as const,
   colors: {
     header: [226, 70, 55], // Color indigo (convertido de HSL a RGB)
     body: [60, 60, 60],
@@ -62,8 +62,8 @@ export function generatePDF(
 ): void {
   // Creamos un nuevo documento PDF
   const doc = new jsPDF({
-    orientation: pdfOptions.orientation as any,
-    unit: pdfOptions.unit,
+    orientation: pdfOptions.orientation as "portrait" | "landscape",
+    unit: pdfOptions.unit as "mm" | "cm" | "in" | "pt" | "px" | "pc" | "em" | "ex",
     format: pdfOptions.format,
   });
 
