@@ -16,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
-import { CalendarIcon, Download, DownloadCloud, FileText } from "lucide-react";
+import { CalendarIcon, Download, DownloadCloud, FileText, FileBarChart, FileSpreadsheet, Users, Wallet } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -33,6 +33,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { 
+  generateChildrenReport, 
+  generateParentsReport, 
+  generateProgramsReport, 
+  generateEnrollmentsReport, 
+  generatePaymentsReport, 
+  ReportTypes 
+} from "@/components/reports/pdf-generator";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
 
 // Sample data for charts - in a real app, this would come from API
 const enrollmentData = [
