@@ -3,49 +3,122 @@
 @tailwind utilities;
 
 :root {
-      --background: 0 0% 100%;
---foreground: 20 14.3% 4.1%;
---muted: 60 4.8% 95.9%;
---muted-foreground: 25 5.3% 44.7%;
---popover: 0 0% 100%;
---popover-foreground: 20 14.3% 4.1%;
---card: 0 0% 100%;
---card-foreground: 20 14.3% 4.1%;
---border: 20 5.9% 90%;
---input: 20 5.9% 90%;
---primary: 207 90% 54%;
---primary-foreground: 211 100% 99%;
---secondary: 60 4.8% 95.9%;
---secondary-foreground: 24 9.8% 10%;
---accent: 60 4.8% 95.9%;
---accent-foreground: 24 9.8% 10%;
---destructive: 0 84.2% 60.2%;
---destructive-foreground: 60 9.1% 97.8%;
---ring: 20 14.3% 4.1%;
---radius: 0.5rem;
-  }
-  .dark {
-      --background: 240 10% 3.9%;
---foreground: 0 0% 98%;
---muted: 240 3.7% 15.9%;
---muted-foreground: 240 5% 64.9%;
---popover: 240 10% 3.9%;
---popover-foreground: 0 0% 98%;
---card: 240 10% 3.9%;
---card-foreground: 0 0% 98%;
---border: 240 3.7% 15.9%;
---input: 240 3.7% 15.9%;
---primary: 207 90% 54%;
---primary-foreground: 211 100% 99%;
---secondary: 240 3.7% 15.9%;
---secondary-foreground: 0 0% 98%;
---accent: 240 3.7% 15.9%;
---accent-foreground: 0 0% 98%;
---destructive: 0 62.8% 30.6%;
---destructive-foreground: 0 0% 98%;
---ring: 240 4.9% 83.9%;
---radius: 0.5rem;
-  }
+  /* Base */
+  --background: 210 40% 98%;
+  --foreground: 222 47% 11%;
+  
+  /* Muted */
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215 16% 47%;
+  
+  /* Popover */
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  
+  /* Card */
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  
+  /* Border & Input */
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  
+  /* Primary - Indigo */
+  --primary: 226 70% 55%;
+  --primary-foreground: 210 40% 98%;
+  
+  /* Secondary */
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222 47% 11%;
+  
+  /* Accent */
+  --accent: 262 83% 58%;
+  --accent-foreground: 210 40% 98%;
+  
+  /* Destructive */
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  
+  /* Ring */
+  --ring: 226 70% 55%;
+  --radius: 0.5rem;
+
+  /* Chart Colors */
+  --chart-1: 226 70% 55%;
+  --chart-2: 262 83% 58%;
+  --chart-3: 32 95% 55%;
+  --chart-4: 343 80% 55%;
+  --chart-5: 187 75% 55%;
+
+  /* Sidebar */
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 222 47% 11%;
+  --sidebar-primary: 226 70% 55%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 214 32% 91%;
+  --sidebar-accent-foreground: 222 47% 11%;
+  --sidebar-border: 214 32% 91%;
+  --sidebar-ring: 226 70% 55%;
+}
+
+.dark {
+  /* Base */
+  --background: 222 47% 11%;
+  --foreground: 210 40% 98%;
+  
+  /* Muted */
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  
+  /* Popover */
+  --popover: 224 71% 4%;
+  --popover-foreground: 210 40% 98%;
+  
+  /* Card */
+  --card: 224 71% 4%;
+  --card-foreground: 210 40% 98%;
+  
+  /* Border & Input */
+  --border: 217 33% 17%;
+  --input: 217 33% 17%;
+  
+  /* Primary - Indigo */
+  --primary: 226 70% 55%;
+  --primary-foreground: 210 40% 98%;
+  
+  /* Secondary */
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 40% 98%;
+  
+  /* Accent */
+  --accent: 262 83% 58%;
+  --accent-foreground: 210 40% 98%;
+  
+  /* Destructive */
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  
+  /* Ring */
+  --ring: 226 70% 55%;
+  --radius: 0.5rem;
+
+  /* Chart Colors - Brighter in dark mode */
+  --chart-1: 226 70% 65%;
+  --chart-2: 262 83% 68%;
+  --chart-3: 32 95% 65%;
+  --chart-4: 343 80% 65%;
+  --chart-5: 187 75% 65%;
+
+  /* Sidebar */
+  --sidebar-background: 224 71% 4%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-primary: 226 70% 55%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 217 33% 17%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-border: 217 33% 17%;
+  --sidebar-ring: 226 70% 55%;
+}
 
 @layer base {
   * {

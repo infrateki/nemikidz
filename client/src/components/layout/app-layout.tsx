@@ -1,9 +1,9 @@
 import { ReactNode, useState } from "react";
 import Sidebar from "./sidebar";
 import { useAuth } from "@/hooks/use-auth";
-import { Bell, Menu, Search, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Bell, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface AppLayoutProps {
   children: ReactNode;
