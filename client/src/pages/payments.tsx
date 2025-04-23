@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import AppLayout from "@/components/layout/app-layout";
 import { 
   Table, 
@@ -12,11 +12,24 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle, 
+  AlertDialogTrigger 
+} from "@/components/ui/alert-dialog";
 import { Plus, Edit, Eye, Trash2, Receipt, Calendar } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Payment } from "@shared/schema";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
   Select,
   SelectContent,
@@ -29,12 +42,52 @@ export default function Payments() {
   const [location] = useLocation();
   const searchParams = new URLSearchParams(location.split('?')[1] || '');
   const enrollmentId = searchParams.get('enrollmentId');
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const { toast } = useToast();
 
   const { data: payments, isLoading, error } = useQuery<Payment[]>({
     queryKey: enrollmentId 
       ? ['/api/payments', { enrollmentId }] 
       : ['/api/payments'],
   });
+
+  // Delete payment mutation
+  const deletePaymentMutation = useMutation({
+    mutationFn: async (paymentId: number) => {
+      const res = await apiRequest("DELETE", `/api/payments/${paymentId}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Error eliminando pago");
+      }
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Pago eliminado con éxito",
+        description: "El registro del pago ha sido eliminado del sistema",
+      });
+      // Invalidate payments query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['/api/payments'] });
+      // Also invalidate dashboard stats since it includes payment information
+      queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
+      setDeletingId(null);
+    },
+    onError: (error) => {
+      console.error("Error deleting payment:", error);
+      toast({
+        title: "Error al eliminar",
+        description: error.message || "Hubo un error al eliminar el registro del pago",
+        variant: "destructive",
+      });
+      setDeletingId(null);
+    }
+  });
+  
+  // Handle delete payment
+  const handleDeletePayment = (paymentId: number) => {
+    setDeletingId(paymentId);
+    deletePaymentMutation.mutate(paymentId);
+  };
 
   if (error) {
     console.error('Payments fetch error:', error);
@@ -145,9 +198,30 @@ export default function Payments() {
                             <Edit className="h-4 w-4" />
                           </Button>
                         </Link>
-                        <Button variant="outline" size="icon">
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="icon">
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta acción eliminará permanentemente el registro de pago por {formatCurrency(Number(payment.amount))} y no se puede deshacer.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction 
+                                className="bg-red-500 hover:bg-red-600" 
+                                onClick={() => handleDeletePayment(payment.id)}
+                              >
+                                Eliminar
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>

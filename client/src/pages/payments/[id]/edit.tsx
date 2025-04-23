@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import AppLayout from "@/components/layout/app-layout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -24,14 +24,11 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ArrowLeft, CalendarIcon } from "lucide-react";
-import { insertPaymentSchema, Enrollment, Child, Program } from "@shared/schema";
+import { Payment, Enrollment, paymentStatusEnum, paymentMethodEnum } from "@shared/schema";
 import * as z from "zod";
 
 // Create a custom form schema that matches the database schema
 const formSchema = z.object({
-  enrollmentId: z.number({
-    required_error: "La inscripción es requerida",
-  }),
   amount: z.string().min(1, "El monto del pago es requerido"),
   paymentDate: z.date({
     required_error: "La fecha de pago es requerida",
@@ -47,26 +44,38 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function NewPayment() {
-  const [location] = useLocation();
+export default function EditPayment() {
+  const [match, params] = useRoute<{ id: string }>("/payments/:id/edit");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [_, navigate] = useLocation();
   const { toast } = useToast();
-  
-  // Get enrollmentId from URL parameters if available
-  const searchParams = new URLSearchParams(location.split('?')[1] || '');
-  const urlEnrollmentId = searchParams.get('enrollmentId');
 
-  // Fetch all enrollments for dropdown
-  const { data: enrollments, isLoading: enrollmentsLoading } = useQuery<Enrollment[]>({
-    queryKey: ['/api/enrollments'],
+  // Fetch payment data
+  const { data: payment, isLoading, error } = useQuery<Payment>({
+    queryKey: ['/api/payments', params?.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/payments/${params?.id}`);
+      if (!res.ok) throw new Error("Error al cargar los detalles del pago");
+      return res.json();
+    },
+    enabled: !!params?.id,
+  });
+
+  // Fetch enrollment details if payment data is available
+  const { data: enrollment } = useQuery<Enrollment>({
+    queryKey: ['/api/enrollments', payment?.enrollmentId],
+    queryFn: async () => {
+      const res = await fetch(`/api/enrollments/${payment?.enrollmentId}`);
+      if (!res.ok) throw new Error("Error al cargar los detalles de la inscripción");
+      return res.json();
+    },
+    enabled: !!payment?.enrollmentId,
   });
 
   // Define form with zod validation
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      enrollmentId: urlEnrollmentId ? parseInt(urlEnrollmentId) : undefined,
       amount: "",
       paymentDate: new Date(),
       method: "cash",
@@ -75,167 +84,113 @@ export default function NewPayment() {
     }
   });
 
-  // Create payment mutation
-  const createPaymentMutation = useMutation({
+  // Update form values when payment data is loaded
+  useEffect(() => {
+    if (payment) {
+      form.reset({
+        amount: payment.amount,
+        paymentDate: new Date(payment.paymentDate),
+        method: payment.method as any,
+        status: payment.status as any,
+        notes: payment.notes
+      });
+    }
+  }, [payment, form]);
+
+  // Update payment mutation
+  const updatePaymentMutation = useMutation({
     mutationFn: async (data: FormValues) => {
-      const res = await apiRequest("POST", "/api/payments", data);
+      const res = await apiRequest("PATCH", `/api/payments/${params?.id}`, data);
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Error creando pago");
+        throw new Error(errorData.message || "Error al actualizar pago");
       }
       return await res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast({
-        title: "Pago creado con éxito",
-        description: "El pago ha sido registrado en el sistema",
+        title: "Pago actualizado con éxito",
+        description: "La información del pago ha sido actualizada",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/payments'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/payments', params?.id] });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
-      navigate(urlEnrollmentId 
-        ? `/payments?enrollmentId=${urlEnrollmentId}` 
-        : `/payments/${data.id}`);
+      navigate(`/payments/${params?.id}`);
     },
     onError: (error) => {
-      console.error("Error creating payment:", error);
+      console.error("Error updating payment:", error);
       toast({
-        title: "Error al crear pago",
-        description: error.message || "Hubo un error al registrar el pago",
+        title: "Error al actualizar",
+        description: error.message || "Hubo un error al actualizar la información del pago",
         variant: "destructive",
       });
       setIsSubmitting(false);
     }
   });
 
-  // When enrollment is selected, set the amount from the enrollment
-  const selectedEnrollmentId = form.watch("enrollmentId");
-  
-  // Fetch selected enrollment details if available
-  const { data: selectedEnrollment } = useQuery<Enrollment>({
-    queryKey: ['/api/enrollments', selectedEnrollmentId],
-    queryFn: async () => {
-      const res = await fetch(`/api/enrollments/${selectedEnrollmentId}`);
-      if (!res.ok) throw new Error("Error al cargar los detalles de la inscripción");
-      return res.json();
-    },
-    enabled: !!selectedEnrollmentId,
-  });
-
-  // Fetch child details if enrollment is selected
-  const { data: child } = useQuery<Child>({
-    queryKey: ['/api/children', selectedEnrollment?.childId],
-    queryFn: async () => {
-      const res = await fetch(`/api/children/${selectedEnrollment?.childId}`);
-      if (!res.ok) throw new Error("Error al cargar los detalles del niño");
-      return res.json();
-    },
-    enabled: !!selectedEnrollment?.childId,
-  });
-
-  // Fetch program details if enrollment is selected
-  const { data: program } = useQuery<Program>({
-    queryKey: ['/api/programs', selectedEnrollment?.programId],
-    queryFn: async () => {
-      const res = await fetch(`/api/programs/${selectedEnrollment?.programId}`);
-      if (!res.ok) throw new Error("Error al cargar los detalles del programa");
-      return res.json();
-    },
-    enabled: !!selectedEnrollment?.programId,
-  });
-
-  // Update amount when enrollment changes
-  useEffect(() => {
-    if (selectedEnrollment) {
-      form.setValue("amount", selectedEnrollment.amount);
-    }
-  }, [selectedEnrollment, form]);
-
   // Form submission handler
   const onSubmit = (data: FormValues) => {
     setIsSubmitting(true);
-    createPaymentMutation.mutate(data);
+    updatePaymentMutation.mutate(data);
   };
 
+  if (isLoading) {
+    return (
+      <AppLayout title="Editar Pago">
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-full max-w-sm" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+      </AppLayout>
+    );
+  }
+
+  if (error || !payment) {
+    return (
+      <AppLayout title="Editar Pago">
+        <Card>
+          <CardContent className="pt-6 text-center">
+            <p className="text-red-500">Error al cargar la información del pago. Por favor, intenta nuevamente.</p>
+            <Button className="mt-4" onClick={() => navigate("/payments")}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Volver a la lista
+            </Button>
+          </CardContent>
+        </Card>
+      </AppLayout>
+    );
+  }
+
   return (
-    <AppLayout title="Nuevo Pago">
+    <AppLayout title="Editar Pago">
       <div className="flex items-center mb-6">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => navigate(urlEnrollmentId ? `/payments?enrollmentId=${urlEnrollmentId}` : "/payments")} 
-          className="mr-4"
-        >
+        <Button variant="outline" size="sm" onClick={() => navigate(`/payments/${params?.id}`)} className="mr-4">
           <ArrowLeft className="h-4 w-4 mr-1" />
-          Volver
+          Volver a detalles
         </Button>
-        <h2 className="text-2xl font-serif font-medium">Registrar Nuevo Pago</h2>
+        <h2 className="text-2xl font-serif font-medium">Editar Información del Pago</h2>
       </div>
 
       <Card className="max-w-3xl mx-auto">
         <CardHeader>
-          <CardTitle>Información del Pago</CardTitle>
+          <CardTitle>Detalles del Pago #{payment.id}</CardTitle>
           <CardDescription>
-            Registra un nuevo pago para una inscripción
+            {enrollment && (
+              <span>
+                Pago para la inscripción #{enrollment.id}
+              </span>
+            )}
           </CardDescription>
         </CardHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent className="space-y-6">
-              <FormField
-                control={form.control}
-                name="enrollmentId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Inscripción</FormLabel>
-                    <Select 
-                      onValueChange={(value) => field.onChange(parseInt(value))} 
-                      defaultValue={field.value?.toString()}
-                      disabled={!!urlEnrollmentId}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccionar inscripción" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {enrollmentsLoading ? (
-                          <SelectItem value="loading" disabled>Cargando inscripciones...</SelectItem>
-                        ) : enrollments && enrollments.length > 0 ? (
-                          enrollments.map((enrollment) => (
-                            <SelectItem key={enrollment.id} value={enrollment.id.toString()}>
-                              Inscripción #{enrollment.id} - {enrollment.amount}
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="none" disabled>No hay inscripciones disponibles</SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {selectedEnrollment && child && program && (
-                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md text-sm">
-                  <h4 className="font-medium mb-2">Detalles de la inscripción seleccionada:</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <div>
-                      <span className="text-muted-foreground">Niño:</span> {child.name}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Programa:</span> {program.name}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Estado:</span> {selectedEnrollment.status}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Monto total:</span> ${selectedEnrollment.amount}
-                    </div>
-                  </div>
-                </div>
-              )}
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
@@ -367,15 +322,11 @@ export default function NewPayment() {
               />
             </CardContent>
             <CardFooter className="flex justify-between">
-              <Button 
-                variant="outline" 
-                type="button" 
-                onClick={() => navigate(urlEnrollmentId ? `/payments?enrollmentId=${urlEnrollmentId}` : "/payments")}
-              >
+              <Button variant="outline" type="button" onClick={() => navigate(`/payments/${params?.id}`)}>
                 Cancelar
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Registrando..." : "Registrar Pago"}
+                {isSubmitting ? "Guardando..." : "Guardar Cambios"}
               </Button>
             </CardFooter>
           </form>
