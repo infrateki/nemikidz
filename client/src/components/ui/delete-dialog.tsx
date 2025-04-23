@@ -18,13 +18,14 @@ interface DeleteDialogProps {
   description: string;
   onConfirm: () => void;
   isDeleting?: boolean;
+  id?: string;
 }
 
-export function DeleteDialog({ title, description, onConfirm, isDeleting = false }: DeleteDialogProps) {
+export function DeleteDialog({ title, description, onConfirm, isDeleting = false, id }: DeleteDialogProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" id={id}>
           <Trash2 className="h-4 w-4 text-red-500" />
         </Button>
       </AlertDialogTrigger>

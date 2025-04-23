@@ -5,17 +5,7 @@ import AppLayout from "@/components/layout/app-layout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle, 
-  AlertDialogTrigger 
-} from "@/components/ui/alert-dialog";
+import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -210,32 +200,29 @@ export default function PaymentDetails() {
             </Button>
           </Link>
 
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline" className="text-red-500 border-red-200 hover:bg-red-50">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Eliminar
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción eliminará permanentemente el registro de pago por {formatCurrency(Number(payment.amount))} y no se puede deshacer.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction 
-                  className="bg-red-500 hover:bg-red-600" 
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? "Eliminando..." : "Eliminar"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button 
+            variant="outline" 
+            className="text-red-500 border-red-200 hover:bg-red-50"
+            onClick={() => {
+              const buttonWithDeleteDialog = document.getElementById('delete-payment-button');
+              if (buttonWithDeleteDialog) {
+                buttonWithDeleteDialog.click();
+              }
+            }}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Eliminar
+          </Button>
+          
+          <span className="hidden">
+            <DeleteDialog
+              title="¿Estás seguro?"
+              description={`Esta acción eliminará permanentemente el registro de pago por ${formatCurrency(Number(payment.amount))} y no se puede deshacer.`}
+              onConfirm={handleDelete}
+              isDeleting={isDeleting}
+              id="delete-payment-button"
+            />
+          </span>
         </div>
       </div>
 
