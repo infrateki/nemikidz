@@ -129,7 +129,54 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased bg-background text-foreground transition-colors duration-300;
+  }
+  
+  h1, h2, h3, h4, h5, .font-title {
+    @apply font-serif;
+  }
+  
+  h1 {
+    @apply text-3xl font-semibold tracking-tight;
+  }
+  
+  h2 {
+    @apply text-2xl font-medium tracking-tight;
+  }
+  
+  h3 {
+    @apply text-xl font-medium;
+  }
+  
+  .card-title {
+    @apply font-serif font-medium;
+  }
+  
+  .sidebar-title {
+    @apply font-serif text-lg font-medium;
+  }
+  
+  button, .button {
+    @apply font-sans font-medium;
+  }
+  
+  /* Mejorar contraste en modo oscuro */
+  .dark .bg-background {
+    @apply text-white;
+  }
+  
+  .dark .bg-card {
+    @apply text-white;
+  }
+  
+  /* Añadir sombras elegantes */
+  .card, .shadow-elegant {
+    @apply shadow-md dark:shadow-none;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  }
+  
+  .dark .card, .dark .shadow-elegant {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
   }
 }
 
