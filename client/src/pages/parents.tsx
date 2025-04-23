@@ -99,25 +99,25 @@ export default function Parents() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/children?parentId=${parent.id}`}>
+                      <Link href={`/children?parentId=${parent.id}`}>
+                        <Button variant="outline" size="sm">
                           <Users className="h-3 w-3 mr-1" />
                           Ver Hijos
-                        </Link>
-                      </Button>
+                        </Button>
+                      </Link>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Button variant="outline" size="icon" asChild>
-                          <Link href={`/parents/${parent.id}`}>
+                        <Link href={`/parents/${parent.id}`}>
+                          <Button variant="outline" size="icon">
                             <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button variant="outline" size="icon" asChild>
-                          <Link href={`/parents/${parent.id}/edit`}>
+                          </Button>
+                        </Link>
+                        <Link href={`/parents/${parent.id}/edit`}>
+                          <Button variant="outline" size="icon">
                             <Edit className="h-4 w-4" />
-                          </Link>
-                        </Button>
+                          </Button>
+                        </Link>
                         <Button variant="outline" size="icon">
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>

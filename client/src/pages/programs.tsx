@@ -102,16 +102,16 @@ export default function Programs() {
                     <TableCell>{getStatusBadge(program.status)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Button variant="outline" size="icon" asChild>
-                          <Link href={`/programs/${program.id}`}>
+                        <Link href={`/programs/${program.id}`}>
+                          <Button variant="outline" size="icon">
                             <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button variant="outline" size="icon" asChild>
-                          <Link href={`/programs/${program.id}/edit`}>
+                          </Button>
+                        </Link>
+                        <Link href={`/programs/${program.id}/edit`}>
+                          <Button variant="outline" size="icon">
                             <Edit className="h-4 w-4" />
-                          </Link>
-                        </Button>
+                          </Button>
+                        </Link>
                         <Button variant="outline" size="icon">
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>

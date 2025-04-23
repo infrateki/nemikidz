@@ -80,18 +80,15 @@ export default function Sidebar({ setMobileMenuOpen }: SidebarProps = {}) {
               key={item.path}
               href={item.path}
               onClick={handleLinkClick}
+              className={cn(
+                "flex items-center px-3 py-2 my-1 font-medium rounded-md",
+                location === item.path
+                  ? "bg-primary-50 text-primary-600"
+                  : "text-gray-600 hover:bg-gray-100"
+              )}
             >
-              <a
-                className={cn(
-                  "flex items-center px-3 py-2 my-1 font-medium rounded-md",
-                  location === item.path
-                    ? "bg-primary-50 text-primary-600"
-                    : "text-gray-600 hover:bg-gray-100"
-                )}
-              >
-                {item.icon}
-                {item.label}
-              </a>
+              {item.icon}
+              {item.label}
             </Link>
           ))}
         </nav>
