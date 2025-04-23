@@ -67,32 +67,36 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
             <Menu className="h-6 w-6" />
           </button>
           
-          <div className="flex-1 px-4 flex justify-between">
-            <div className="flex-1 flex items-center">
-              <div className="max-w-2xl w-full lg:max-w-xs">
-                <label htmlFor="search" className="sr-only">Buscar</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <Input 
-                    id="search" 
-                    name="search" 
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm" 
-                    placeholder="Buscar" 
-                    type="search"
-                  />
-                </div>
-              </div>
+          <div className="flex-1 px-4 flex items-center justify-between">
+            {/* Centered NEMI NAVIGATOR Title with elegant style */}
+            <div className="flex-1 flex justify-center">
+              <h1 className="text-xl font-light tracking-widest uppercase text-center text-gray-700 hidden md:block">
+                NEMI NAVIGATOR
+              </h1>
             </div>
             
-            <div className="ml-4 flex items-center md:ml-6">
+            <div className="ml-4 flex items-center space-x-4">
               {/* Notification bell */}
               <button className="p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 relative">
                 <span className="sr-only">Notificaciones</span>
                 <Bell className="h-6 w-6" />
                 <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
               </button>
+              
+              {/* User Profile Picture */}
+              <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center border-2 border-gray-100">
+                {user?.profilePic ? (
+                  <img 
+                    src={user.profilePic} 
+                    alt={`${user.name || user.username}'s profile`} 
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="font-medium text-gray-500">
+                    {user?.name?.[0] || user?.username?.[0] || "U"}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>

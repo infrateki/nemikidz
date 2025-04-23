@@ -18,14 +18,14 @@ const NemiBotButton = () => {
       <div className="fixed bottom-6 right-6 z-50">
         <Button
           onClick={() => setIsChatOpen(!isChatOpen)}
-          className={`rounded-full w-14 h-14 shadow-lg flex items-center justify-center transition-all duration-300 ${
-            isChatOpen ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-600 hover:bg-blue-700'
-          }`}
+          className={`rounded-full w-14 h-14 shadow-lg flex items-center justify-center transition-all duration-300 
+            ${isChatOpen ? 'bg-red-500/90 hover:bg-red-600/90' : 'bg-indigo-500/75 hover:bg-indigo-600/90'}
+            animate-pulse-slow backdrop-blur-sm`}
           aria-label={isChatOpen ? "Cerrar chat" : "Abrir chat con NEMI Bot"}
         >
           {isChatOpen ? 
-            <X size={24} /> : 
-            <NemiLogo className="w-6 h-6" />
+            <X size={24} className="text-white" /> : 
+            <NemiLogo className="w-6 h-6 text-white" />
           }
         </Button>
       </div>
