@@ -57,7 +57,7 @@ export default function QuickActions() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {actions.map((action, index) => (
           <Link key={index} href={action.link}>
-            <a className="block bg-white shadow rounded-lg overflow-hidden hover:bg-gray-50 transition-colors">
+            <div className="block bg-white shadow rounded-lg overflow-hidden hover:bg-gray-50 transition-colors cursor-pointer">
               <div className="p-6">
                 <div className="flex items-center">
                   <div className={`flex-shrink-0 ${action.iconBgColor} rounded-md p-3`}>
@@ -69,7 +69,7 @@ export default function QuickActions() {
                   </div>
                 </div>
               </div>
-            </a>
+            </div>
           </Link>
         ))}
       </div>

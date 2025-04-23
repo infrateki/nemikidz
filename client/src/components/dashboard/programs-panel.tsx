@@ -25,9 +25,9 @@ export default function ProgramsPanel({ programs }: ProgramsPanelProps) {
         <div className="flex items-center justify-between">
           <h3 className="text-lg leading-6 font-medium text-gray-900">Programas Activos</h3>
           <Link href="/programs">
-            <a className="text-sm font-medium text-primary-600 hover:text-primary-500">
+            <div className="text-sm font-medium text-primary-600 hover:text-primary-500 cursor-pointer">
               Ver todos <span aria-hidden="true">&rarr;</span>
-            </a>
+            </div>
           </Link>
         </div>
       </div>
