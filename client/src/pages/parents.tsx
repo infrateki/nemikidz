@@ -12,18 +12,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle, 
-  AlertDialogTrigger 
-} from "@/components/ui/alert-dialog";
-import { Plus, Edit, Eye, Trash2, Users, Phone, Mail, MapPin } from "lucide-react";
+import { DeleteDialog } from "@/components/ui/delete-dialog";
+import { Plus, Edit, Eye, Users, Phone, Mail, MapPin } from "lucide-react";
 import { Link } from "wouter";
 import { Parent } from "@shared/schema";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -169,30 +159,12 @@ export default function Parents() {
                             <Edit className="h-4 w-4" />
                           </Button>
                         </Link>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="icon">
-                              <Trash2 className="h-4 w-4 text-red-500" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Esta acción eliminará permanentemente el registro de {parent.name} y no se puede deshacer.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction 
-                                className="bg-red-500 hover:bg-red-600" 
-                                onClick={() => handleDeleteParent(parent.id)}
-                              >
-                                Eliminar
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        <DeleteDialog 
+                          title="¿Estás seguro?"
+                          description={`Esta acción eliminará permanentemente el registro de ${parent.name} y no se puede deshacer.`}
+                          onConfirm={() => handleDeleteParent(parent.id)}
+                          isDeleting={deletingId === parent.id}
+                        />
                       </div>
                     </TableCell>
                   </TableRow>

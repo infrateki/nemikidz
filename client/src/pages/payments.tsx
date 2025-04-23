@@ -198,30 +198,12 @@ export default function Payments() {
                             <Edit className="h-4 w-4" />
                           </Button>
                         </Link>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="icon">
-                              <Trash2 className="h-4 w-4 text-red-500" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Esta acción eliminará permanentemente el registro de pago por {formatCurrency(Number(payment.amount))} y no se puede deshacer.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction 
-                                className="bg-red-500 hover:bg-red-600" 
-                                onClick={() => handleDeletePayment(payment.id)}
-                              >
-                                Eliminar
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        <DeleteDialog 
+                          title="¿Estás seguro?"
+                          description={`Esta acción eliminará permanentemente el registro de pago por ${formatCurrency(Number(payment.amount))} y no se puede deshacer.`}
+                          onConfirm={() => handleDeletePayment(payment.id)}
+                          isDeleting={deletingId === payment.id}
+                        />
                       </div>
                     </TableCell>
                   </TableRow>
